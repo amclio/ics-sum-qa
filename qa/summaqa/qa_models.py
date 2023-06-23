@@ -4,8 +4,6 @@ import torch
 from transformers import (
     BertTokenizer,
     BertForQuestionAnswering,
-    AutoTokenizer,
-    AutoModel,
 )
 
 

@@ -4,43 +4,24 @@ from .qa_models import QA_Bert
 from konlpy.tag import Okt
 
 
-# class QG_masked:
-#     """
-#     Cloze style Question Generator based on spacy named entity recognition
-#     """
-
-#     def __init__(self, spacy_model="ko_core_news_md"):
-#         self.nlp = spacy.load(spacy_model)
-
-#     def get_questions(self, text_input):
-#         """
-#         Generate a list of questions on a text
-#         Args:
-#           text_input: a string
-#         Returns:
-#           a list of question
-#         """
-#         masked_questions = []
-#         asws = []
-
-#         for sent in self.nlp(text_input).sents:
-#             for ent in sent.ents:
-#                 id_start = ent.start_char - sent.start_char
-#                 id_end = ent.start_char - sent.start_char + len(ent.text)
-#                 masked_question = sent.text[:id_start] + "MASKED" + sent.text[id_end:]
-#                 masked_questions.append(masked_question)
-#                 asws.append(ent.text)
-
-#         return masked_questions, asws
+def find_all(a_str, sub):
+    start = 0
+    while True:
+        start = a_str.find(sub, start)
+        if start == -1:
+            return
+        yield start
+        start += len(sub)
 
 
 class QG_masked:
     """
-    Cloze style Question Generator based on KoNLPy noun extraction
+    Cloze style Question Generator based on spacy named entity recognition
     """
 
-    def __init__(self):
-        self.nlp = Okt()
+    def __init__(self, spacy_model="ko_core_news_md"):
+        self.nlp = spacy.load(spacy_model)
+        self.okt = Okt()
 
     def get_questions(self, text_input):
         """
@@ -53,15 +34,34 @@ class QG_masked:
         masked_questions = []
         asws = []
 
-        for sent in self.nlp.phrases(text_input):
-            for word, pos in self.nlp.pos(sent):
-                if pos == "Noun":
-                    id_start = sent.find(word)
-                    id_end = id_start + len(word)
-                    masked_question = sent[:id_start] + "MASKED" + sent[id_end:]
-                    masked_questions.append(masked_question)
-                    asws.append(word)
+        for sent in self.nlp(text_input).sents:
+            nouns = self.okt.nouns(sent.text)
 
+            # NOTE: Remove duplcated nouns
+            nouns = list(set(nouns))
+
+            for noun in nouns:
+                nouns_positions = list(find_all(sent.text, noun))
+
+                for position in nouns_positions:
+                    working_sent = list(sent.text)
+                    # print(working_sent)
+
+                    # for i, _ in enumerate(list(noun)):
+                    #     working_sent.pop(position)
+                    #     print(working_sent)
+                    working_sent = (
+                        working_sent[:position]
+                        + ["MASKED"]
+                        + working_sent[position + len(noun) :]
+                    )
+
+                    # working_sent[position:position] = ["MASKED"]
+                    working_sent = "".join(working_sent)
+                    masked_questions.append(working_sent)
+                    asws.append(noun)
+
+        # print(masked_questions)
         return masked_questions, asws
 
 

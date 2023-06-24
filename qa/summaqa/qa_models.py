@@ -10,7 +10,11 @@ class QA_Bert:
             "snunlp/KR-Medium", do_lower_case=False
         )
         self.model = BertForQuestionAnswering.from_pretrained(
-            "Kdogs/klue-finetuned-squad_kor_v1"
+            # "timpal0l/mdeberta-v3-base-squad2",
+            "Kdogs/klue-finetuned-squad_kor_v1",
+            # "ainize/klue-bert-base-mrc"
+            # "bespin-global/klue-bert-base-aihub-mrc",
+            # "bert-large-uncased-whole-word-masking-finetuned-squad",
         ).to(self.device)
 
         self.SEP_id = self.tokenizer.encode("[SEP]")[0]

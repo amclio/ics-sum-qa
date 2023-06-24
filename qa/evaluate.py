@@ -16,7 +16,10 @@ summaries_files = [
     f for f in listdir(summaries_path) if isfile(join(summaries_path, f))
 ]
 
-formated_csv = format_csv()
+try:
+    formated_csv = format_csv()
+except Exception:
+    formated_csv = None
 
 results = []
 
@@ -36,13 +39,12 @@ for file_name in tqdm(sources_files):
     )
 
     for summary_file in summaries_current_files:
-        print(summary_file)
         with open(
             summaries_path + "/" + summary_file, "r", encoding="utf-8"
         ) as file_name:
             text = file_name.read()
 
-        if summary_file in formated_csv["filename"].values:
+        if formated_csv is not None or summary_file in formated_csv["filename"].values:
             continue
 
         score = qa_metric.compute(masked_questions, answer_spans, text)

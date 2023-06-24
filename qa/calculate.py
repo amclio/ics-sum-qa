@@ -13,13 +13,16 @@ def count_overall_systems_with_highest_avg_fscore(df):
         # accumulate the counts for each system
         for system, count in systems_count.items():
             if system in overall_result_dict:
-                overall_result_dict[system] += count
+                overall_result_dict[system]["hit"] += count
             else:
-                overall_result_dict[system] = count
+                overall_result_dict[system] = {}
+                overall_result_dict[system]["hit"] = count
 
     # NOTE: Calc Averages
-    for system, count in overall_result_dict.items():
-        overall_result_dict[system] = count / len(df[df["system"] == system].index)
+    for system, var in overall_result_dict.items():
+        count = len(df[df["system"] == system].index)
+        overall_result_dict[system]["count"] = count
+        overall_result_dict[system]["avg"] = var["hit"] / count
 
     return overall_result_dict
 
@@ -28,6 +31,7 @@ df = format_csv()
 
 overall_result_dict = count_overall_systems_with_highest_avg_fscore(df)
 
-print(overall_result_dict)
-for system, count in overall_result_dict.items():
-    print(f"System: {system}, Count: {count}")
+for system, var in overall_result_dict.items():
+    print(
+        f"System: {system}, Count: {var['count']}, Hit: {var['hit']}, Avg: {var['avg']}"
+    )

@@ -3,8 +3,7 @@ from os import listdir
 from os.path import isfile, join
 from deal_with_csv import write_csv, format_csv
 from tqdm import tqdm
-
-# import matplotlib.pyplot as plt
+import re
 
 question_generator = QG_masked()
 qa_metric = QA_Metric()
@@ -26,17 +25,18 @@ for file_name in tqdm(sources_files):
         text = file.read()
 
     masked_questions, answer_spans = question_generator.get_questions(text)
-
     file_name_without_ext = file_name.replace(".txt", "")
 
     summaries_current_files = list(
         filter(
-            lambda item: item.startswith(file_name_without_ext),
+            lambda item: re.search(r"(^.+)(?=-)", item).group(1)
+            == file_name_without_ext,
             summaries_files,
         )
     )
 
     for summary_file in summaries_current_files:
+        print(summary_file)
         with open(
             summaries_path + "/" + summary_file, "r", encoding="utf-8"
         ) as file_name:

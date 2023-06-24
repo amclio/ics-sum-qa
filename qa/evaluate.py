@@ -44,7 +44,7 @@ for file_name in tqdm(sources_files):
         ) as file_name:
             text = file_name.read()
 
-        if formated_csv is not None or summary_file in formated_csv["filename"].values:
+        if formated_csv is not None and summary_file in formated_csv["filename"].values:
             continue
 
         score = qa_metric.compute(masked_questions, answer_spans, text)

@@ -14,14 +14,17 @@ def write_csv(data):
     # name of the csv file where the data will be written
     filename = "output.csv"
 
-    with open(filename, mode="w", newline="") as file:
+    with open(filename, mode="a", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
 
-        writer.writeheader()
+        # Check if the file is empty
+        if file.tell() == 0:
+            writer.writeheader()
+
         for row in data:
             writer.writerow(row)
 
-    print(f"Data written to {filename}")
+    print(f"Data appended to {filename}")
 
 
 def format_csv():
